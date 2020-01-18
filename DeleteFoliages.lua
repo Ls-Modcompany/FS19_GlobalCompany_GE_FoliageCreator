@@ -4,10 +4,6 @@
 -- Icon:
 -- Hide: no
 
-local deleteGrass = true
-local deleteDecoFoliage = true
-local deleteBush = true
-
 local bitsFruitDensityGdm = 5
 
 -------------------
