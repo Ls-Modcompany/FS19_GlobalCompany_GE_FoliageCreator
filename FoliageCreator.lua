@@ -14,6 +14,11 @@ local bitsFruitDensityGdm = 5
 local bitsFruitDensityGrle = 8
 local bitsFieldDimensionsGrle = 8
 
+--Additionals
+local doPaintLayer = true
+local paintGrassId = 71
+local paintWaldId = 76
+local paintGrassDecoId = 71
 
 --CONSTANTS--
 -- decoFoliage State 1: 1
@@ -45,10 +50,15 @@ local bit_grass_factor = 100000
 local bit_wald_states = {13, 3, 14, 15, 10, 3, 10, 3, 10, 3, 10}
 local bit_wald_factor = 1000000
 
-local bit_grassDeco_states = {3, 5, 6, 8}
-local bit_grassDeco_factor = 100000
+local bit_grassDeco_states = {3, 5, 6, 8, 12, 14}
+local bit_grassDeco_factor = 500000
 
 local maxFactor = 1000000
+
+--Texture Layer
+--local enableLayerPaint = true
+--local layer_grass = 
+--local layer_wald = 
 
 -------------------
 --NO CHANGES HERE--
@@ -131,18 +141,29 @@ end
 local edges = terrainSize / 2
 for i=-edges, edges do
     for j=-edges, edges do
-        local value = getBitVectorMapPoint(grle,i + terrainSize/2, j + terrainSize/2, 0, bitsFruitDensityGrle)       
+        local value = getBitVectorMapPoint(grle,i + terrainSize/2, j + terrainSize/2, 0, bitsFruitDensityGrle)      
+        local canSet = true
+        if useFieldDim then
+            local f = localMapWidth / terrainSize
+            local x = i * f
+            local y = j * f
+            canSet = getBitVectorMapPoint(fieldDim, x + terrainSize/2, y + terrainSize/2, 0, bitsFieldDimensionsGrle) == 0
+        end 
         if value == bit_grass or value == bit_grassDeco then
-            local canSet = true
-            if useFieldDim then
-                local f = localMapWidth / terrainSize
-                local x = i * f
-                local y = j * f
-                canSet = getBitVectorMapPoint(fieldDim, x + terrainSize/2, y + terrainSize/2, 0, bitsFieldDimensionsGrle) == 0
-            end
             if canSet then
                 setValue(bit_grass_state, i, j, i+1, j, i, j+1)
             end
+        end
+        if doPaintLayer then
+            local y = getTerrainHeightAtWorldPos(terrain, i + 0.5, 0, j + 0.5)
+            if value == bit_grass then
+                setTerrainLayerAtWorldPos(terrain, paintGrassId, i + 0.5, y, j + 0.5, 128.0 )
+            elseif value == bit_wald then
+                setTerrainLayerAtWorldPos(terrain, paintWaldId, i + 0.5, y, j + 0.5, 128.0 )
+            elseif value == bit_grassDeco then
+                setTerrainLayerAtWorldPos(terrain, paintGrassDecoId, i + 0.5, y, j + 0.5, 128.0 )
+            end
+
         end
     end
 end
